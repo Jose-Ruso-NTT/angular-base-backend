@@ -4,6 +4,8 @@ import { openApiDocument } from './openapi.js';
 import { ApiError, ProductRepository } from './products.js';
 
 const products = new ProductRepository();
+const API_DELAY_MIN_MS = 200;
+const API_DELAY_MAX_MS = 900;
 
 /** Creates the HTTP server; exported to allow integration tests without a fixed port. */
 export function createApiServer(repository = products) {
@@ -17,6 +19,7 @@ export function createApiServer(repository = products) {
       if (request.method === 'GET' && url.pathname === '/docs') return sendHtml(response, swaggerUiHtml());
       const match = url.pathname.match(/^\/api\/v1\/products(?:\/([0-9a-f-]+))?$/i);
       if (!match) throw new ApiError(404, 'ROUTE_NOT_FOUND', 'Route not found.');
+      await wait(randomApiDelay());
       const id = match[1];
       if (!id && request.method === 'GET') return sendJson(response, 200, repository.list(Object.fromEntries(url.searchParams)));
       if (!id && request.method === 'POST') return sendJson(response, 201, repository.create(await readJson(request)));
@@ -53,6 +56,12 @@ function setCorsHeaders(response) {
 function sendJson(response, status, body) { response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' }); response.end(JSON.stringify(body)); }
 function sendEmpty(response, status) { response.writeHead(status); response.end(); }
 function sendHtml(response, html) { response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); response.end(html); }
+function randomApiDelay() {
+  return Math.floor(Math.random() * (API_DELAY_MAX_MS - API_DELAY_MIN_MS + 1)) + API_DELAY_MIN_MS;
+}
+function wait(milliseconds) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
 function swaggerUiHtml() {
   return `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Angular Base API</title><link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css"></head><body><div id="swagger-ui"></div><script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script><script>SwaggerUIBundle({url:'/openapi.json',dom_id:'#swagger-ui',persistAuthorization:true});</script></body></html>`;
 }

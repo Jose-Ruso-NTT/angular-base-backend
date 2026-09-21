@@ -102,10 +102,29 @@ function validateProduct(input) {
 
 function createSeed() {
   const now = '2026-01-15T10:00:00.000Z';
-  return [
+  const examples = [
     { id: 'b81a7236-2283-46b6-9476-d42c85e746c0', name: 'Teclado mecánico', description: 'Interruptores táctiles y distribución ISO.', sku: 'KEY-001', price: 89.95, stock: 24, status: 'ACTIVE', createdAt: now, updatedAt: now },
     { id: '6984f05f-3ec2-4f6d-a592-510b5328b317', name: 'Ratón ergonómico', description: null, sku: 'MOUSE-002', price: 42.5, stock: 0, status: 'INACTIVE', createdAt: '2026-02-02T10:00:00.000Z', updatedAt: '2026-02-02T10:00:00.000Z' },
   ];
+  const generated = Array.from({ length: 23 }, (_, index) => {
+    const number = index + 3;
+    const identifier = String(number).padStart(3, '0');
+    const date = `2026-03-${String(number).padStart(2, '0')}T10:00:00.000Z`;
+
+    return {
+      id: `00000000-0000-4000-8000-${String(number).padStart(12, '0')}`,
+      name: `Producto de demostración ${identifier}`,
+      description: index % 3 === 0 ? null : `Descripción del producto de demostración ${identifier}.`,
+      sku: `DEMO-${identifier}`,
+      price: 10 + index * 3.5,
+      stock: index % 4 === 0 ? 0 : number,
+      status: index % 2 === 0 ? 'INACTIVE' : 'DISCONTINUED',
+      createdAt: date,
+      updatedAt: date,
+    };
+  });
+
+  return [...examples, ...generated];
 }
 
 function invalid(message) { return new ApiError(400, 'VALIDATION_ERROR', message); }
