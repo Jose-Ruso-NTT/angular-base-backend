@@ -2,8 +2,14 @@
 
 API REST sin dependencias de producción: usa únicamente `node:http` de Node 22 y una colección en memoria. Está pensada para que el frontend pueda consumir una API real desde el primer momento, sin base de datos ni infraestructura adicional.
 
-```powershell
-cd backend
+## Repositorio relacionado
+
+El cliente que consume esta API está en el repositorio independiente [angular-base](https://github.com/Jose-Ruso-NTT/angular-base).
+
+## Puesta en marcha
+
+```bash
+npm install
 npm start
 ```
 
